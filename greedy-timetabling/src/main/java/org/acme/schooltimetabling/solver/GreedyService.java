@@ -34,29 +34,30 @@ public class GreedyService {
     }
 
     private int calculateScore(TimeTable unsolved, Timeslot timeslot, Room room, String studentGroup, String teacher) {
+        int hardScore = 0;
         for (Lesson l : unsolved.getLessonList()) {
             if (l.getRoom() != null
                     && l.getTimeslot() != null
                     && Objects.equals(l.getRoom().getId(), room.getId())
                     && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
             ) {
-                return -1;
+                hardScore --;
             }
             if (l.getStudentGroup() != null
                     && l.getTimeslot() != null
                     && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
                     && Objects.equals(l.getStudentGroup(),studentGroup)
             ) {
-                return -1;
+                hardScore --;
             }
             if (l.getTeacher() != null
                     && l.getTimeslot() != null
                     && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
                     && Objects.equals(l.getTeacher(),teacher)
             ) {
-                return -1;
+                hardScore --;
             }
         }
-        return 0;
+        return hardScore;
     }
 }
