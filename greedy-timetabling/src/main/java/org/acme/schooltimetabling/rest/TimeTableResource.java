@@ -33,7 +33,6 @@ import java.util.Objects;
 
 @Path("timeTable")
 public class TimeTableResource {
-    public static final Long SINGLETON_TIME_TABLE_ID = 1L;
     @Inject
     TimeslotRepository timeslotRepository;
     @Inject
@@ -44,14 +43,14 @@ public class TimeTableResource {
     // To try, open http://localhost:8080/timeTable
     @GET
     public TimeTable getTimeTable() {
-        return findById(SINGLETON_TIME_TABLE_ID);
+        return findById();
     }
 
     @GET
     @Path("solved")
     public TimeTable getTimeSolvedTable() {
 
-        TimeTable timeTable = findById(SINGLETON_TIME_TABLE_ID);
+        TimeTable timeTable = findById();
 
         for (Lesson lesson : timeTable.getLessonList()) {
             int bestScore = Integer.MIN_VALUE;
@@ -103,19 +102,13 @@ public class TimeTableResource {
     }
 
     @Transactional
-    protected TimeTable findById(Long id) {
-        if (!SINGLETON_TIME_TABLE_ID.equals(id)) {
-            throw new IllegalStateException("There is no timeTable with id (" + id + ").");
-        }
-        // Occurs in a single transaction, so each initialized lesson references the same timeslot/room instance
-        // that is contained by the timeTable's timeslotList/roomList.
+    protected TimeTable findById() {
         return new TimeTable(timeslotRepository.listAll(Sort.by("dayOfWeek").and("startTime").and("endTime").and("id")), roomRepository.listAll(Sort.by("name").and("id")), lessonRepository.listAll(Sort.by("subject").and("teacher").and("studentGroup").and("id")));
     }
 
     @Transactional
     protected void save(TimeTable timeTable) {
         for (Lesson lesson : timeTable.getLessonList()) {
-            // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
             Lesson attachedLesson = lessonRepository.findById(lesson.getId());
             attachedLesson.setTimeslot(lesson.getTimeslot());
             attachedLesson.setRoom(lesson.getRoom());
