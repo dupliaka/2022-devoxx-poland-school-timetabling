@@ -24,8 +24,6 @@ public class TimeTable {
     private List<Room> roomList;
     private List<Lesson> lessonList;
     private int score;
-    private boolean solved;
-
 
     // No-arg constructor required for OptaPlanner
     public TimeTable() {
@@ -63,13 +61,5 @@ public class TimeTable {
 
     public void setLessonList(List<Lesson> lessonList) {
         this.lessonList = lessonList;
-    }
-
-    public boolean isSolved() {
-        return solved;
-    }
-
-    public void setSolved() {
-        this.solved = true;
     }
 }

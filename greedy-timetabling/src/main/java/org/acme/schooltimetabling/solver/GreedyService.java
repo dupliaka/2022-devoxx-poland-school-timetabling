@@ -11,6 +11,7 @@ import org.acme.schooltimetabling.domain.Timeslot;
 @ApplicationScoped
 public class GreedyService {
     public TimeTable solve(TimeTable timeTable) {
+        int sumScore = 0;
         for (Lesson lesson : timeTable.getLessonList()) {
             int bestScore = Integer.MIN_VALUE;
             Room bestRoom = null;
@@ -27,9 +28,9 @@ public class GreedyService {
             }
             lesson.setTimeslot(bestTimeslot);
             lesson.setRoom(bestRoom);
-            timeTable.setScore(timeTable.getScore() + bestScore);
-            timeTable.setSolved();
+            sumScore += bestScore;
         }
+        timeTable.setScore(sumScore);
         return timeTable;
     }
 
