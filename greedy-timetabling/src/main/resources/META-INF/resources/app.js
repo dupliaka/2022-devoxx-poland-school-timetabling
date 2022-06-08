@@ -25,14 +25,15 @@ $(document).ready(function () {
     };
   });
 
-  $("#clean").click(function () {
+  $("#refreshButton").click(function () {
     refreshTimeTable();
   });
-
   $("#solveButton").click(function () {
     solveTimeTable();
   });
-
+  $("#stopSolvingButton").click(function () {
+    stopSolving();
+  });
   $("#addLessonSubmitButton").click(function () {
     addLesson();
   });

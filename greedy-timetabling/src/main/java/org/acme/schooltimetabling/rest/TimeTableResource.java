@@ -24,6 +24,7 @@ import org.acme.schooltimetabling.domain.Timeslot;
 import org.acme.schooltimetabling.persistence.LessonRepository;
 import org.acme.schooltimetabling.persistence.RoomRepository;
 import org.acme.schooltimetabling.persistence.TimeslotRepository;
+import org.acme.schooltimetabling.solver.GreedyService;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -39,6 +40,8 @@ public class TimeTableResource {
     RoomRepository roomRepository;
     @Inject
     LessonRepository lessonRepository;
+    @Inject
+    GreedyService greedyService;
 
     // To try, open http://localhost:8080/timeTable
     @GET
@@ -49,57 +52,13 @@ public class TimeTableResource {
     @GET
     @Path("solved")
     public TimeTable getTimeSolvedTable() {
-
         TimeTable timeTable = findById();
-
-        for (Lesson lesson : timeTable.getLessonList()) {
-            int bestScore = Integer.MIN_VALUE;
-            Room bestRoom = null;
-            Timeslot bestTimeslot = null;
-            for (Room room : timeTable.getRoomList()) {
-                for (Timeslot timeslot : timeTable.getTimeslotList()) {
-                    int score = calculateScore(timeTable, timeslot, room, lesson.getStudentGroup(), lesson.getTeacher());
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestRoom = room;
-                        bestTimeslot = timeslot;
-                    }
-                }
-            }
-            lesson.setTimeslot(bestTimeslot);
-            lesson.setRoom(bestRoom);
-            timeTable.setScore(timeTable.getScore() + bestScore);
-            timeTable.setSolved();
-        }
+        greedyService.solve(timeTable);
+        save(timeTable);
         return timeTable;
     }
 
-    private int calculateScore(TimeTable unsolved, Timeslot timeslot, Room room, String studentGroup, String teacher) {
-        for (Lesson l : unsolved.getLessonList()) {
-            if (l.getRoom() != null
-                    && l.getTimeslot() != null
-                    && Objects.equals(l.getRoom().getId(), room.getId())
-                    && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
-            ) {
-                return -1;
-            }
-            if (l.getStudentGroup() != null
-                    && l.getTimeslot() != null
-                    && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
-                    && Objects.equals(l.getStudentGroup(),studentGroup)
-            ) {
-                return -1;
-            }
-            if (l.getTeacher() != null
-                    && l.getTimeslot() != null
-                    && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
-                    && Objects.equals(l.getTeacher(),teacher)
-            ) {
-                return -1;
-            }
-        }
-        return 0;
-    }
+
 
     @Transactional
     protected TimeTable findById() {
