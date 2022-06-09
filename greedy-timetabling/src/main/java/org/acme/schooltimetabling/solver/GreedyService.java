@@ -11,52 +11,49 @@ import org.acme.schooltimetabling.domain.Timeslot;
 @ApplicationScoped
 public class GreedyService {
     public TimeTable solve(TimeTable timeTable) {
-        int sumScore = 0;
         for (Lesson lesson : timeTable.getLessonList()) {
             int bestScore = Integer.MIN_VALUE;
             Room bestRoom = null;
             Timeslot bestTimeslot = null;
             for (Room room : timeTable.getRoomList()) {
+                lesson.setRoom(room);
                 for (Timeslot timeslot : timeTable.getTimeslotList()) {
-                    int score = calculateScore(timeTable, timeslot, room, lesson.getStudentGroup(), lesson.getTeacher());
+                    lesson.setTimeslot(timeslot);
+                    int score = calculateScore(timeTable);
                     if (score > bestScore) {
                         bestScore = score;
                         bestRoom = room;
                         bestTimeslot = timeslot;
                     }
+                    lesson.setTimeslot(null);
                 }
+                lesson.setRoom(null);
             }
-            lesson.setTimeslot(bestTimeslot);
             lesson.setRoom(bestRoom);
-            sumScore += bestScore;
+            lesson.setTimeslot(bestTimeslot);
         }
-        timeTable.setScore(sumScore);
+        timeTable.setScore(calculateScore(timeTable));
         return timeTable;
     }
 
-    private int calculateScore(TimeTable unsolved, Timeslot timeslot, Room room, String studentGroup, String teacher) {
+    private int calculateScore(TimeTable timeTable) {
         int hardScore = 0;
-        for (Lesson l : unsolved.getLessonList()) {
-            if (l.getRoom() != null
-                    && l.getTimeslot() != null
-                    && Objects.equals(l.getRoom().getId(), room.getId())
-                    && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
-            ) {
-                hardScore --;
-            }
-            if (l.getStudentGroup() != null
-                    && l.getTimeslot() != null
-                    && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
-                    && Objects.equals(l.getStudentGroup(),studentGroup)
-            ) {
-                hardScore --;
-            }
-            if (l.getTeacher() != null
-                    && l.getTimeslot() != null
-                    && Objects.equals(l.getTimeslot().getId(), timeslot.getId())
-                    && Objects.equals(l.getTeacher(),teacher)
-            ) {
-                hardScore --;
+        for (Lesson lesson1 : timeTable.getLessonList()) {
+            for (Lesson lesson2 : timeTable.getLessonList()) {
+                if (lesson1 != lesson2) {
+                    if (Objects.equals(lesson1.getRoom(), lesson2.getRoom())
+                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                        hardScore--;
+                    }
+                    if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher())
+                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                        hardScore--;
+                    }
+                    if (Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup())
+                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                        hardScore--;
+                    }
+                }
             }
         }
         return hardScore;
