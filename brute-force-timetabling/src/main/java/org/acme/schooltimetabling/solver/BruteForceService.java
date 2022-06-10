@@ -22,7 +22,7 @@ public class BruteForceService {
 
     public TimeTable solve(TimeTable timeTable) {
 
-        ArrayList<int[]> permutation = getPermutation(timeTable.getRoomList().size() + timeTable.getTimeslotList().size());
+        ArrayList<int[]> permutation = getPermutation(timeTable);
 
         TimeTable bestTimeTable = new TimeTable();
         int bestScore = Integer.MIN_VALUE;
@@ -36,7 +36,7 @@ public class BruteForceService {
                 }
             }
             int score = calculateScore(timeTable);
-            printLessons(timeTable,score);
+            printLessons(timeTable, score);
             if (score > bestScore) {
                 bestScore = score;
                 bestTimeTable = timeTable;
@@ -47,17 +47,22 @@ public class BruteForceService {
         return bestTimeTable;
     }
 
-    private ArrayList<int[]> getPermutation(int size) {
+    private ArrayList<int[]> getPermutation(TimeTable timeTable) {
         ArrayList<int[]> permutation = new ArrayList<>();
+        int permSize = timeTable.getRoomList().size() * timeTable.getTimeslotList().size();
 
-        int[] elements = IntStream.rangeClosed(0, size-1).toArray();
+        //create permutation set {0,1,2,3,4,5,0}
+        int[] elements = new int[permSize];
+        for (int i = 0; i < permSize; i++) {
+            elements[i] = (i < timeTable.getLessonList().size()) ? i : 0;
+        }
         int[] indexes = new int[elements.length];
 
         int i = 0;
         while (i < elements.length) {
             if (indexes[i] < i) {
                 swap(elements, i % 2 == 0 ? 0 : indexes[i], i);
-                permutation.add(Arrays.copyOf(elements, size));
+                permutation.add(Arrays.copyOf(elements, permSize));
                 indexes[i]++;
                 i = 0;
             } else {
@@ -70,10 +75,10 @@ public class BruteForceService {
 
     private void printLessons(TimeTable timeTable, int score) {
         System.out.println();
-        for (Lesson lesson:timeTable.getLessonList()) {
+        for (Lesson lesson : timeTable.getLessonList()) {
             System.out.println(lesson.print());
         }
-        System.out.println("score:"+ score);
+        System.out.println("score:" + score);
     }
 
     private int calculateScore(TimeTable timeTable) {
@@ -81,16 +86,13 @@ public class BruteForceService {
         for (Lesson lesson1 : timeTable.getLessonList()) {
             for (Lesson lesson2 : timeTable.getLessonList()) {
                 if (lesson1 != lesson2) {
-                    if (Objects.equals(lesson1.getRoom(), lesson2.getRoom())
-                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                    if (Objects.equals(lesson1.getRoom(), lesson2.getRoom()) && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
                         hardScore--;
                     }
-                    if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher())
-                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                    if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher()) && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
                         hardScore--;
                     }
-                    if (Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup())
-                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                    if (Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup()) && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
                         hardScore--;
                     }
                 }
