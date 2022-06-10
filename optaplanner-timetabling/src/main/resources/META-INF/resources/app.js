@@ -29,7 +29,10 @@ $(document).ready(function () {
     refreshTimeTable();
   });
   $("#solveButton").click(function () {
-    solveTimeTable();
+    solve();
+  });
+  $("#stopSolvingButton").click(function () {
+    stopSolving();
   });
   $("#addLessonSubmitButton").click(function () {
     addLesson();
@@ -43,16 +46,10 @@ $(document).ready(function () {
 
   refreshTimeTable();
 });
-function solveTimeTable(){
-    refreshTimeTableByPath("/timeTable/solve")
-}
 
 function refreshTimeTable() {
-    refreshTimeTableByPath("/timeTable")
-}
-
-function refreshTimeTableByPath(path) {
-  $.getJSON(path, function (timeTable) {
+  $.getJSON("/timeTable", function (timeTable) {
+    refreshSolvingButtons(timeTable.solverStatus != null && timeTable.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (timeTable.score == null ? "?" : timeTable.score));
 
     const timeTableByRoom = $("#timeTableByRoom");
@@ -177,6 +174,32 @@ function solve() {
     refreshSolvingButtons(true);
   }).fail(function (xhr, ajaxOptions, thrownError) {
     showError("Start solving failed.", xhr);
+  });
+}
+
+function refreshSolvingButtons(solving) {
+  if (solving) {
+    $("#solveButton").hide();
+    $("#stopSolvingButton").show();
+    if (autoRefreshIntervalId == null) {
+      autoRefreshIntervalId = setInterval(refreshTimeTable, 2000);
+    }
+  } else {
+    $("#solveButton").show();
+    $("#stopSolvingButton").hide();
+    if (autoRefreshIntervalId != null) {
+      clearInterval(autoRefreshIntervalId);
+      autoRefreshIntervalId = null;
+    }
+  }
+}
+
+function stopSolving() {
+  $.post("/timeTable/stopSolving", function () {
+    refreshSolvingButtons(false);
+    refreshTimeTable();
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Stop solving failed.", xhr);
   });
 }
 
