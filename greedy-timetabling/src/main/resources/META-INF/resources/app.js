@@ -47,7 +47,7 @@ $(document).ready(function () {
   refreshTimeTable();
 });
 function solveTimeTable(){
-    refreshTimeTableByPath("/timeTable/solved")
+    refreshTimeTableByPath("/timeTable/solve")
 }
 
 function refreshTimeTable() {
@@ -174,6 +174,40 @@ function refreshTimeTableByPath(path) {
 function convertToId(str) {
   // Base64 encoding without padding to avoid XSS
   return btoa(str).replace(/=/g, "");
+}
+
+function solve() {
+  $.post("/timeTable/solve", function () {
+    refreshSolvingButtons(true);
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Start solving failed.", xhr);
+  });
+}
+
+function refreshSolvingButtons(solving) {
+  if (solving) {
+    $("#solveButton").hide();
+    $("#stopSolvingButton").show();
+    if (autoRefreshIntervalId == null) {
+      autoRefreshIntervalId = setInterval(refreshTimeTable, 2000);
+    }
+  } else {
+    $("#solveButton").show();
+    $("#stopSolvingButton").hide();
+    if (autoRefreshIntervalId != null) {
+      clearInterval(autoRefreshIntervalId);
+      autoRefreshIntervalId = null;
+    }
+  }
+}
+
+function stopSolving() {
+  $.post("/timeTable/stopSolving", function () {
+    refreshSolvingButtons(false);
+    refreshTimeTable();
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Stop solving failed.", xhr);
+  });
 }
 
 function addLesson() {

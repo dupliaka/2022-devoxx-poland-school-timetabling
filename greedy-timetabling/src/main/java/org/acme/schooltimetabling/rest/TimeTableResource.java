@@ -50,7 +50,7 @@ public class TimeTableResource {
     }
 
     @GET
-    @Path("solved")
+    @Path("solve")
     public TimeTable getTimeSolvedTable() {
         TimeTable timeTable = findById();
         greedyService.solve(timeTable);
