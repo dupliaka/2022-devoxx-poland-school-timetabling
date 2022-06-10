@@ -96,4 +96,14 @@ public class Lesson {
         this.room = room;
     }
 
+    public String print() {
+        return "Lesson{" +
+                "id=" + id +
+                ", subject='" + subject + '\'' +
+                ", teacher='" + teacher + '\'' +
+                ", studentGroup='" + studentGroup + '\'' +
+                ", timeslot=" + timeslot +
+                ", room=" + room +
+                '}';
+    }
 }

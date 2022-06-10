@@ -22,6 +22,7 @@ import org.acme.schooltimetabling.domain.TimeTable;
 import org.acme.schooltimetabling.persistence.LessonRepository;
 import org.acme.schooltimetabling.persistence.RoomRepository;
 import org.acme.schooltimetabling.persistence.TimeslotRepository;
+import org.acme.schooltimetabling.solver.BruteForceService;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -32,8 +33,6 @@ import javax.ws.rs.Path;
 @Path("timeTable")
 public class TimeTableResource {
 
-    public static final Long SINGLETON_TIME_TABLE_ID = 1L;
-
     @Inject
     TimeslotRepository timeslotRepository;
     @Inject
@@ -41,20 +40,22 @@ public class TimeTableResource {
     @Inject
     LessonRepository lessonRepository;
 
+    @Inject
+    BruteForceService bruteForceService;
+
     // To try, open http://localhost:8080/timeTable
     @GET
     public TimeTable getTimeTable() {
-        return new TimeTable();
+        return findById();
     }
 
     @POST
     @Path("solve")
     public void solve() {
+        TimeTable timeTable = findById();
+        TimeTable bestSolution = bruteForceService.solve(timeTable);
+        save(bestSolution);
     }
-
-//    public SolverStatus getSolverStatus() {
-//        return solverManager.getSolverStatus(SINGLETON_TIME_TABLE_ID);
-//    }
 
     @POST
     @Path("stopSolving")
@@ -63,16 +64,8 @@ public class TimeTableResource {
     }
 
     @Transactional
-    protected TimeTable findById(Long id) {
-        if (!SINGLETON_TIME_TABLE_ID.equals(id)) {
-            throw new IllegalStateException("There is no timeTable with id (" + id + ").");
-        }
-        // Occurs in a single transaction, so each initialized lesson references the same timeslot/room instance
-        // that is contained by the timeTable's timeslotList/roomList.
-        return new TimeTable(
-                timeslotRepository.listAll(Sort.by("dayOfWeek").and("startTime").and("endTime").and("id")),
-                roomRepository.listAll(Sort.by("name").and("id")),
-                lessonRepository.listAll(Sort.by("subject").and("teacher").and("studentGroup").and("id")));
+    protected TimeTable findById() {
+        return new TimeTable(timeslotRepository.listAll(Sort.by("dayOfWeek").and("startTime").and("endTime").and("id")), roomRepository.listAll(Sort.by("name").and("id")), lessonRepository.listAll(Sort.by("subject").and("teacher").and("studentGroup").and("id")));
     }
 
     @Transactional
@@ -84,5 +77,4 @@ public class TimeTableResource {
             attachedLesson.setRoom(lesson.getRoom());
         }
     }
-
 }
