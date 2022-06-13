@@ -2,83 +2,94 @@ package org.acme.schooltimetabling.solver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import org.acme.schooltimetabling.domain.Lesson;
+import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.TimeTable;
+import org.acme.schooltimetabling.domain.Timeslot;
 
 @ApplicationScoped
 public class BruteForceService {
 
-    private static void swap(int[] elements, int a, int b) {
+    // TODO make record
+    public static class Choice {
+        public int timeslotIndex = 0;
+        public int roomIndex = 0;
 
-        int tmp = elements[a];
-        elements[a] = elements[b];
-        elements[b] = tmp;
+        public Choice() {
+        }
+
+        public Choice(Choice other) {
+            timeslotIndex = other.timeslotIndex;
+            roomIndex = other.roomIndex;
+        }
+
+        @Override
+        public String toString() {
+            return timeslotIndex + "," + roomIndex;
+        }
     }
 
     public TimeTable solve(TimeTable timeTable) {
+        List<Lesson> lessonList = timeTable.getLessonList();
+        List<Timeslot> timeslotList = timeTable.getTimeslotList();
+        List<Room> roomList = timeTable.getRoomList();
 
-        ArrayList<int[]> permutation = getPermutation(timeTable);
+        Choice[] choices = new Choice[lessonList.size()];
+        for (int i = 0; i < choices.length; i++) {
+            choices[i] = new Choice();
+        }
 
-        TimeTable bestTimeTable = new TimeTable();
+        Choice[] bestChoices = null;
         int bestScore = Integer.MIN_VALUE;
-        for (int[] per : permutation) {
-            int l = 0;
-            for (int r = 0; r < timeTable.getRoomList().size(); r++) {
-                for (int t = 0; t < timeTable.getTimeslotList().size(); t++) {
-                    timeTable.getLessonList().get(per[l]).setRoom(timeTable.getRoomList().get(r));
-                    timeTable.getLessonList().get(per[l]).setTimeslot(timeTable.getTimeslotList().get(t));
-                    l++;
-                }
-            }
+        boolean finished = true;
+        while (finished) {
+            setupChoices(lessonList, timeslotList, roomList, choices);
             int score = calculateScore(timeTable);
-            printLessons(timeTable, score);
             if (score > bestScore) {
                 bestScore = score;
-                bestTimeTable = timeTable;
+                bestChoices = new Choice[choices.length];
+                for (int i = 0; i < choices.length; i++) {
+                    bestChoices[i] = new Choice(choices[i]);
+                }
             }
+            finished = incrementChoices(timeslotList, roomList, choices, finished);
         }
-
-        bestTimeTable.setScore(bestScore);
-        return bestTimeTable;
+        setupChoices(lessonList, timeslotList, roomList, bestChoices);
+        timeTable.setScore(bestScore);
+        return timeTable;
     }
 
-    private ArrayList<int[]> getPermutation(TimeTable timeTable) {
-        ArrayList<int[]> permutation = new ArrayList<>();
-        int permSize = timeTable.getRoomList().size() * timeTable.getTimeslotList().size();
-
-        //create permutation set {0,1,2,3,4,5,0}
-        int[] elements = new int[permSize];
-        for (int i = 0; i < permSize; i++) {
-            elements[i] = (i < timeTable.getLessonList().size()) ? i : 0;
+    private void setupChoices(List<Lesson> lessonList, List<Timeslot> timeslotList, List<Room> roomList, Choice[] choices) {
+        for (int i = 0; i < lessonList.size(); i++) {
+            Lesson lesson = lessonList.get(i);
+            Choice choice = choices[i];
+            lesson.setTimeslot(timeslotList.get(choice.timeslotIndex));
+            lesson.setRoom(roomList.get(choice.roomIndex));
         }
-        int[] indexes = new int[elements.length];
-
-        int i = 0;
-        while (i < elements.length) {
-            if (indexes[i] < i) {
-                swap(elements, i % 2 == 0 ? 0 : indexes[i], i);
-                permutation.add(Arrays.copyOf(elements, permSize));
-                indexes[i]++;
-                i = 0;
-            } else {
-                indexes[i] = 0;
-                i++;
-            }
-        }
-        return permutation;
     }
 
-    private void printLessons(TimeTable timeTable, int score) {
-        System.out.println();
-        for (Lesson lesson : timeTable.getLessonList()) {
-            System.out.println(lesson.print());
+    private boolean incrementChoices(List<Timeslot> timeslotList, List<Room> roomList, Choice[] choices, boolean finished) {
+        for (int i = 0;;) {
+            choices[i].roomIndex++;
+            if (choices[i].roomIndex < roomList.size()) {
+                return true;
+            }
+            choices[i].roomIndex = 0;
+            choices[i].timeslotIndex++;
+            if (choices[i].timeslotIndex < timeslotList.size()) {
+                return true;
+            }
+            choices[i].timeslotIndex = 0;
+            i++;
+            if (i >= choices.length) {
+                return false;
+            }
         }
-        System.out.println("score:" + score);
     }
 
     private int calculateScore(TimeTable timeTable) {
