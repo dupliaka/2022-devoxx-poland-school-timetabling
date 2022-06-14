@@ -16,16 +16,7 @@
 
 package org.acme.schooltimetabling.bootstrap;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
+import io.quarkus.runtime.StartupEvent;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.Timeslot;
@@ -34,7 +25,14 @@ import org.acme.schooltimetabling.persistence.RoomRepository;
 import org.acme.schooltimetabling.persistence.TimeslotRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import io.quarkus.runtime.StartupEvent;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class DemoDataGenerator {
@@ -55,68 +53,155 @@ public class DemoDataGenerator {
             return;
         }
 
+        List<Lesson> lessons = lessonList.subList(0, demoData.size);
+        lessonRepository.persist(lessons);
 
-        List<Timeslot> timeslotList = new ArrayList<>(10);
-        timeslotList.add(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
-        timeslotList.add(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
-
-        if (demoData == DemoData.LARGE) {
-            timeslotList.add(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
-            timeslotList.add(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
-            timeslotList.add(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
-
-            timeslotList.add(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
-            timeslotList.add(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
-            timeslotList.add(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
-            timeslotList.add(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
-            timeslotList.add(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
-        }
         timeslotRepository.persist(timeslotList);
 
-        List<Room> roomList = new ArrayList<>(3);
-        roomList.add(new Room("Room A"));
-        roomList.add(new Room("Room B"));
-        if (demoData == DemoData.LARGE) {
-            roomList.add(new Room("Room C"));
-            roomList.add(new Room("Room D"));
-            roomList.add(new Room("Room E"));
-            roomList.add(new Room("Room F"));
+        List<Room> roomList = new ArrayList<>();
+        for (int i = 65; roomList.size() < 2 * demoData.size / timeslotList.size(); i++) {
+            roomList.add(new Room("Room " + (char) i));
         }
         roomRepository.persist(roomList);
-
-        List<Lesson> lessonList = new ArrayList<>();
-        lessonList.add(new Lesson("Math", "A. Turing", "9th grade"));
-        lessonList.add(new Lesson("Chemistry", "M. Curie", "9th grade"));
-        lessonList.add(new Lesson("History", "I. Jones", "10th grade"));
-        lessonList.add(new Lesson("French", "M. Curie", "10th grade"));
-
-        if (demoData == DemoData.LARGE) {
-            lessonList.add(new Lesson("Math", "A. Turing", "9th grade"));
-            lessonList.add(new Lesson("Physics", "M. Curie", "9th grade"));
-            lessonList.add(new Lesson("Biology", "C. Darwin", "9th grade"));
-            lessonList.add(new Lesson("History", "I. Jones", "9th grade"));
-            lessonList.add(new Lesson("English", "I. Jones", "9th grade"));
-            lessonList.add(new Lesson("English", "I. Jones", "9th grade"));
-            lessonList.add(new Lesson("Spanish", "P. Cruz", "9th grade"));
-            lessonList.add(new Lesson("Spanish", "P. Cruz", "9th grade"));
-            lessonList.add(new Lesson("Math", "A. Turing", "10th grade"));
-            lessonList.add(new Lesson("Math", "A. Turing", "10th grade"));
-            lessonList.add(new Lesson("Math", "A. Turing", "10th grade"));
-            lessonList.add(new Lesson("Physics", "M. Curie", "10th grade"));
-            lessonList.add(new Lesson("Chemistry", "M. Curie", "10th grade"));
-            lessonList.add(new Lesson("Geography", "C. Darwin", "10th grade"));
-            lessonList.add(new Lesson("History", "I. Jones", "10th grade"));
-            lessonList.add(new Lesson("English", "P. Cruz", "10th grade"));
-            lessonList.add(new Lesson("Spanish", "P. Cruz", "10th grade"));
-        }
-
-        lessonRepository.persist(lessonList);
     }
 
+    private static List<Lesson> lessonList = List.of(
+            new Lesson("Math", "A. Turing", "9th grade"),
+            new Lesson("History", "I. Jones", "10th grade"),
+            new Lesson("Chemistry", "M. Curie", "9th grade"),
+            new Lesson("French", "M. Curie", "10th grade"),
+            new Lesson("Math", "A. Turing", "9th grade"),
+            new Lesson("Physics", "M. Curie", "9th grade"),
+            new Lesson("Biology", "C. Darwin", "9th grade"),
+            new Lesson("History", "I. Jones", "9th grade"),
+            new Lesson("English", "I. Jones", "9th grade"),
+            new Lesson("English", "I. Jones", "9th grade"),
+            new Lesson("Spanish", "P. Cruz", "9th grade"),
+            new Lesson("Spanish", "P. Cruz", "9th grade"),
+            new Lesson("Math", "A. Turing", "9th grade"),
+            new Lesson("Math", "A. Turing", "9th grade"),
+            new Lesson("Math", "A. Turing", "9th grade"),
+            new Lesson("ICT", "A. Turing", "9th grade"),
+            new Lesson("Physics", "M. Curie", "9th grade"),
+            new Lesson("Geography", "C. Darwin", "9th grade"),
+            new Lesson("Geology", "C. Darwin", "9th grade"),
+            new Lesson("History", "I. Jones", "9th grade"),
+            new Lesson("English", "I. Jones", "9th grade"),
+            new Lesson("Drama", "I. Jones", "9th grade"),
+            new Lesson("Art", "S. Dali", "9th grade"),
+            new Lesson("Art", "S. Dali", "9th grade"),
+            new Lesson("Physical education", "C. Lewis", "9th grade"),
+            new Lesson("Physical education", "C. Lewis", "9th grade"),
+            new Lesson("Physical education", "C. Lewis", "9th grade"),
+            new Lesson("Math", "A. Turing", "10th grade"),
+            new Lesson("Math", "A. Turing", "10th grade"),
+            new Lesson("Math", "A. Turing", "10th grade"),
+            new Lesson("Physics", "M. Curie", "10th grade"),
+            new Lesson("Chemistry", "M. Curie", "10th grade"),
+            new Lesson("Geography", "C. Darwin", "10th grade"),
+            new Lesson("History", "I. Jones", "10th grade"),
+            new Lesson("English", "P. Cruz", "10th grade"),
+            new Lesson("Spanish", "P. Cruz", "10th grade"),
+            new Lesson("Math", "A. Turing", "10th grade"),
+            new Lesson("Math", "A. Turing", "10th grade"),
+            new Lesson("ICT", "A. Turing", "10th grade"),
+            new Lesson("Physics", "M. Curie", "10th grade"),
+            new Lesson("Biology", "C. Darwin", "10th grade"),
+            new Lesson("Geology", "C. Darwin", "10th grade"),
+            new Lesson("English", "P. Cruz", "10th grade"),
+            new Lesson("English", "P. Cruz", "10th grade"),
+            new Lesson("Drama", "I. Jones", "10th grade"),
+            new Lesson("Art", "S. Dali", "10th grade"),
+            new Lesson("Art", "S. Dali", "10th grade"),
+            new Lesson("Physical education", "C. Lewis", "10th grade"),
+            new Lesson("Physical education", "C. Lewis", "10th grade"),
+            new Lesson("Physical education", "C. Lewis", "10th grade"),
+            new Lesson("Math", "A. Turing", "11th grade"),
+            new Lesson("Math", "A. Turing", "11th grade"),
+            new Lesson("Math", "A. Turing", "11th grade"),
+            new Lesson("Math", "A. Turing", "11th grade"),
+            new Lesson("Math", "A. Turing", "11th grade"),
+            new Lesson("ICT", "A. Turing", "11th grade"),
+            new Lesson("Physics", "M. Curie", "11th grade"),
+            new Lesson("Chemistry", "M. Curie", "11th grade"),
+            new Lesson("French", "M. Curie", "11th grade"),
+            new Lesson("Physics", "M. Curie", "11th grade"),
+            new Lesson("Geography", "C. Darwin", "11th grade"),
+            new Lesson("Biology", "C. Darwin", "11th grade"),
+            new Lesson("Geology", "C. Darwin", "11th grade"),
+            new Lesson("History", "I. Jones", "11th grade"),
+            new Lesson("History", "I. Jones", "11th grade"),
+            new Lesson("English", "P. Cruz", "11th grade"),
+            new Lesson("English", "P. Cruz", "11th grade"),
+            new Lesson("English", "P. Cruz", "11th grade"),
+            new Lesson("Spanish", "P. Cruz", "11th grade"),
+            new Lesson("Drama", "P. Cruz", "11th grade"),
+            new Lesson("Art", "S. Dali", "11th grade"),
+            new Lesson("Art", "S. Dali", "11th grade"),
+            new Lesson("Physical education", "C. Lewis", "11th grade"),
+            new Lesson("Physical education", "C. Lewis", "11th grade"),
+            new Lesson("Physical education", "C. Lewis", "11th grade"),
+            new Lesson("Math", "A. Turing", "12th grade"),
+            new Lesson("Math", "A. Turing", "12th grade"),
+            new Lesson("Math", "A. Turing", "12th grade"),
+            new Lesson("Math", "A. Turing", "12th grade"),
+            new Lesson("Math", "A. Turing", "12th grade"),
+            new Lesson("ICT", "A. Turing", "12th grade"),
+            new Lesson("Physics", "M. Curie", "12th grade"),
+            new Lesson("Chemistry", "M. Curie", "12th grade"),
+            new Lesson("French", "M. Curie", "12th grade"),
+            new Lesson("Physics", "M. Curie", "12th grade"),
+            new Lesson("Geography", "C. Darwin", "12th grade"),
+            new Lesson("Biology", "C. Darwin", "12th grade"),
+            new Lesson("Geology", "C. Darwin", "12th grade"),
+            new Lesson("History", "I. Jones", "12th grade"),
+            new Lesson("History", "I. Jones", "12th grade"),
+            new Lesson("English", "P. Cruz", "12th grade"),
+            new Lesson("English", "P. Cruz", "12th grade"),
+            new Lesson("English", "P. Cruz", "12th grade"),
+            new Lesson("Spanish", "P. Cruz", "12th grade"),
+            new Lesson("Drama", "P. Cruz", "12th grade"),
+            new Lesson("Art", "S. Dali", "12th grade"),
+            new Lesson("Art", "S. Dali", "12th grade"),
+            new Lesson("Physical education", "C. Lewis", "12th grade"),
+            new Lesson("Physical education", "C. Lewis", "12th grade"),
+            new Lesson("Physical education", "C. Lewis", "12th grade"));
+
+    private static List<Timeslot> timeslotList = List.of(
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
+
     public enum DemoData {
-        NONE,
-        SMALL,
-        LARGE
+        NONE(0), SMALL(30), LARGE(100);
+
+        int size;
+
+        DemoData(int i) {
+            this.size = i;
+        }
     }
 
 }
