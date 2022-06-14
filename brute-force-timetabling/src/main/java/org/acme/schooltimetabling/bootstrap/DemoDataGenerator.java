@@ -37,7 +37,7 @@ import java.util.List;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    @ConfigProperty(name = "timeTable.demoData", defaultValue = "SMALL")
+    @ConfigProperty(name = "timeTable.demoData", defaultValue = "FOUR")
     DemoData demoData;
 
     @Inject
@@ -53,14 +53,25 @@ public class DemoDataGenerator {
             return;
         }
 
+        //take an arranged written lessons
         List<Lesson> lessons = lessonList.subList(0, demoData.size);
         lessonRepository.persist(lessons);
 
-        timeslotRepository.persist(timeslotList);
-
+        //generate 3 room by default
         List<Room> roomList = new ArrayList<>();
-        for (int i = 65; roomList.size() < 2 * demoData.size / timeslotList.size(); i++) {
-            roomList.add(new Room("Room " + (char) i));
+        roomList.add(new Room("Room A"));
+        roomList.add(new Room("Room B" ));
+
+        //if we have enough rooms and timeslots then decrease timeslots otherwise add more rooms
+        if (2 * demoData.size / roomList.size() < timeslotList.size()) {
+            List<Timeslot> timeslots = timeslotList.subList(0, 2 * demoData.size / roomList.size());
+            timeslotRepository.persist(timeslots);
+        }
+        else {
+            for (int i = 67; roomList.size() < 2 * demoData.size / timeslotList.size(); i++) {
+                roomList.add(new Room("Room " + (char) i));
+            }
+            timeslotRepository.persist(timeslotList);
         }
         roomRepository.persist(roomList);
     }
@@ -195,7 +206,7 @@ public class DemoDataGenerator {
             new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
 
     public enum DemoData {
-        NONE(0), SMALL(30), LARGE(100);
+        NONE(0), FOUR(4), SMALL(30), LARGE(100);
 
         int size;
 

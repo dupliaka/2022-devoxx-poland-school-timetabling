@@ -37,7 +37,7 @@ import java.util.List;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    @ConfigProperty(name = "timeTable.demoData", defaultValue = "SMALL")
+    @ConfigProperty(name = "timeTable.demoData", defaultValue = "FOUR")
     DemoData demoData;
 
     @Inject
@@ -53,19 +53,30 @@ public class DemoDataGenerator {
             return;
         }
 
+        //take an arranged written lessons
         List<Lesson> lessons = lessonList.subList(0, demoData.size);
         lessonRepository.persist(lessons);
 
-        timeslotRepository.persist(timeslotList);
-
+        //generate 3 room by default
         List<Room> roomList = new ArrayList<>();
-        for (int i = 65; roomList.size() < 2 * demoData.size / timeslotList.size(); i++) {
-            roomList.add(new Room("Room " + (char) i));
+        roomList.add(new Room("Room A"));
+        roomList.add(new Room("Room B" ));
+
+        //if we have enough rooms and timeslots then decrease timeslots otherwise add more rooms
+        if (2 * demoData.size / roomList.size() < timeslotList.size()) {
+            List<Timeslot> timeslots = timeslotList.subList(0, 2 * demoData.size / roomList.size());
+            timeslotRepository.persist(timeslots);
+        }
+        else {
+            for (int i = 67; roomList.size() < 2 * demoData.size / timeslotList.size(); i++) {
+                roomList.add(new Room("Room " + (char) i));
+            }
+            timeslotRepository.persist(timeslotList);
         }
         roomRepository.persist(roomList);
     }
 
-   private static List<Lesson> lessonList = List.of(
+    private static List<Lesson> lessonList = List.of(
             new Lesson("Math", "A. Turing", "9th grade"),
             new Lesson("History", "I. Jones", "10th grade"),
             new Lesson("Chemistry", "M. Curie", "9th grade"),
@@ -168,34 +179,34 @@ public class DemoDataGenerator {
             new Lesson("Physical education", "C. Lewis", "12th grade"));
 
     private static List<Timeslot> timeslotList = List.of(
-        new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-        new Timeslot(DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-        new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-        new Timeslot(DayOfWeek.MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-        new Timeslot(DayOfWeek.MONDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-        new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-        new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-        new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-        new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-        new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-        new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-        new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-        new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-        new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-        new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-        new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-        new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-        new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-        new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-        new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-        new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-        new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-        new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-        new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-        new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
+            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
 
     public enum DemoData {
-        NONE(0), SMALL(30), LARGE(100);
+        NONE(0), FOUR(4), SMALL(30), LARGE(100);
 
         int size;
 
@@ -205,3 +216,4 @@ public class DemoDataGenerator {
     }
 
 }
+
