@@ -16,6 +16,7 @@
 
 package org.acme.schooltimetabling.rest;
 
+import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Sort;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
@@ -29,6 +30,7 @@ import org.acme.schooltimetabling.solver.GreedyService;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.util.Objects;
 
@@ -53,9 +55,18 @@ public class TimeTableResource {
     @Path("solve")
     public TimeTable getTimeSolvedTable() {
         TimeTable timeTable = findById();
+        long startMillis = System.currentTimeMillis();
         greedyService.solve(timeTable);
+        long endMillis = System.currentTimeMillis();
+        Log.info("Greedy algorithm took " + (endMillis - startMillis) + " milliseconds.");
         save(timeTable);
-        return timeTable;
+        return timeTable; // TODO remove return to bring in sync with other examples
+    }
+
+    @POST
+    @Path("stopSolving")
+    public void stopSolving() {
+        throw new UnsupportedOperationException("GreedyService does not support async termination.");
     }
 
     @Transactional

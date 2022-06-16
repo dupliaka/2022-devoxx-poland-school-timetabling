@@ -22,6 +22,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Sort;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.TimeTable;
@@ -53,14 +54,17 @@ public class TimeTableResource {
     @Path("solve")
     public void solve() {
         TimeTable timeTable = findById();
-        TimeTable bestSolution = bruteForceService.solve(timeTable);
-        save(bestSolution);
+        long startMillis = System.currentTimeMillis();
+        bruteForceService.solve(timeTable);
+        long endMillis = System.currentTimeMillis();
+        Log.info("Greedy algorithm took " + (endMillis - startMillis) + " milliseconds.");
+        save(timeTable);
     }
 
     @POST
     @Path("stopSolving")
     public void stopSolving() {
-
+        throw new UnsupportedOperationException("BruteForceService does not support async termination.");
     }
 
     @Transactional

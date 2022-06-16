@@ -31,7 +31,7 @@ public class BruteForceService {
         }
     }
 
-    public TimeTable solve(TimeTable timeTable) {
+    public void solve(TimeTable timeTable) {
         List<Lesson> lessonList = timeTable.getLessonList();
         List<Timeslot> timeslotList = timeTable.getTimeslotList();
         List<Room> roomList = timeTable.getRoomList();
@@ -58,7 +58,6 @@ public class BruteForceService {
         }
         setupChoices(lessonList, timeslotList, roomList, bestChoices);
         timeTable.setScore(bestScore);
-        return timeTable;
     }
 
     private void setupChoices(List<Lesson> lessonList, List<Timeslot> timeslotList, List<Room> roomList, Choice[] choices) {
