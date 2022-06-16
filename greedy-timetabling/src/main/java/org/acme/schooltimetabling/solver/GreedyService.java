@@ -40,26 +40,48 @@ public class GreedyService {
 
     private long calculateScore(TimeTable timeTable) {
         long hardScore = 0;
+        long softScore = 0;
         for (Lesson lesson1 : timeTable.getLessonList()) {
             for (Lesson lesson2 : timeTable.getLessonList()) {
                 if (lesson1 == lesson2) {
                     break;
                 }
-                if (lesson1.getRoom() == lesson2.getRoom()
-                        && lesson1.getTimeslot() == lesson2.getTimeslot()) {
+                if (Objects.equals(lesson1.getRoom(), lesson2.getRoom())
+                        && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
                     hardScore--;
                 }
-                if (lesson1.getTeacher() == lesson2.getTeacher()
-                        && lesson1.getTimeslot() == lesson2.getTimeslot()) {
+                if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher())
+                        && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
                     hardScore--;
                 }
-                if (lesson1.getStudentGroup() == lesson2.getStudentGroup()
-                        && lesson1.getTimeslot() == lesson2.getTimeslot()) {
+                if (Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup())
+                        && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
                     hardScore--;
+                }
+                if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher())
+                        && !Objects.equals(lesson1.getRoom(), lesson2.getRoom())) {
+                    softScore--;
+                }
+                if (lesson1.getTimeslot() != null && lesson2.getTimeslot() != null
+                        && Objects.equals(lesson1.getTeacher(), lesson2.getTeacher())
+                        && !Objects.equals(lesson1.getTimeslot().getDayOfWeek(), lesson2.getTimeslot().getDayOfWeek())
+                        && lesson1.getTimeslot().getEndTime().compareTo(lesson2.getTimeslot().getStartTime()) <= 0
+                        && Duration.between(lesson1.getTimeslot().getEndTime(),
+                        lesson2.getTimeslot().getStartTime()).toMinutes() <= 30) {
+                    softScore++;
+                }
+                if (lesson1.getTimeslot() != null && lesson2.getTimeslot() != null
+                        && Objects.equals(lesson1.getSubject(), lesson2.getSubject())
+                        && Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup())
+                        && Objects.equals(lesson1.getTimeslot().getDayOfWeek(), lesson2.getTimeslot().getDayOfWeek())
+                        && lesson1.getTimeslot().getEndTime().compareTo(lesson2.getTimeslot().getStartTime()) <= 0
+                        && Duration.between(lesson1.getTimeslot().getEndTime(),
+                        lesson2.getTimeslot().getStartTime()).toMinutes() <= 30) {
+                    softScore--;
                 }
             }
         }
-        return hardScore;
+        return hardScore * 1_000_000_000 + softScore;
     }
 
 }
