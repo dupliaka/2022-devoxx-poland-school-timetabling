@@ -91,7 +91,7 @@ public class TimeTableResource {
         return new TimeTable(
                 timeslotRepository.listAll(Sort.by("dayOfWeek").and("startTime").and("endTime").and("id")),
                 roomRepository.listAll(Sort.by("name").and("id")),
-                lessonRepository.listAll(Sort.by("subject").and("teacher").and("studentGroup").and("id")));
+                lessonRepository.listAll(Sort.by("id")));
     }
 
     @Transactional

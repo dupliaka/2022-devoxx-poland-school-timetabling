@@ -75,16 +75,16 @@ public class BruteForceService {
 
     private boolean incrementChoices(List<Timeslot> timeslotList, List<Room> roomList, Choice[] choices, boolean finished) {
         for (int i = 0;;) {
-            choices[i].roomIndex++;
-            if (choices[i].roomIndex < roomList.size()) {
-                return true;
-            }
-            choices[i].roomIndex = 0;
             choices[i].timeslotIndex++;
             if (choices[i].timeslotIndex < timeslotList.size()) {
                 return true;
             }
             choices[i].timeslotIndex = 0;
+            choices[i].roomIndex++;
+            if (choices[i].roomIndex < roomList.size()) {
+                return true;
+            }
+            choices[i].roomIndex = 0;
             i++;
             if (i >= choices.length) {
                 return false;

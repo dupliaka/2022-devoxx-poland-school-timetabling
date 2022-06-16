@@ -65,7 +65,9 @@ public class TimeTableResource {
 
     @Transactional
     protected TimeTable findById() {
-        return new TimeTable(timeslotRepository.listAll(Sort.by("dayOfWeek").and("startTime").and("endTime").and("id")), roomRepository.listAll(Sort.by("name").and("id")), lessonRepository.listAll(Sort.by("subject").and("teacher").and("studentGroup").and("id")));
+        return new TimeTable(timeslotRepository.listAll(Sort.by("dayOfWeek").and("startTime").and("endTime").and("id")),
+                roomRepository.listAll(Sort.by("name").and("id")),
+                lessonRepository.listAll(Sort.by("id")));
     }
 
     @Transactional

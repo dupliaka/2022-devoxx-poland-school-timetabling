@@ -15,22 +15,22 @@ public class GreedyService {
             int bestScore = Integer.MIN_VALUE;
             Room bestRoom = null;
             Timeslot bestTimeslot = null;
-            for (Room room : timeTable.getRoomList()) {
-                lesson.setRoom(room);
-                for (Timeslot timeslot : timeTable.getTimeslotList()) {
-                    lesson.setTimeslot(timeslot);
+            for (Timeslot timeslot : timeTable.getTimeslotList()) {
+                lesson.setTimeslot(timeslot);
+                for (Room room : timeTable.getRoomList()) {
+                    lesson.setRoom(room);
                     int score = calculateScore(timeTable);
                     if (score > bestScore) {
                         bestScore = score;
                         bestRoom = room;
                         bestTimeslot = timeslot;
                     }
-                    lesson.setTimeslot(null);
+                    lesson.setRoom(null);
                 }
-                lesson.setRoom(null);
+                lesson.setTimeslot(null);
             }
-            lesson.setRoom(bestRoom);
             lesson.setTimeslot(bestTimeslot);
+            lesson.setRoom(bestRoom);
         }
         timeTable.setScore(calculateScore(timeTable));
         return timeTable;

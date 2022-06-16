@@ -37,9 +37,6 @@ import java.util.List;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    @ConfigProperty(name = "timeTable.demoData", defaultValue = "FOUR")
-    DemoData demoData;
-
     @Inject
     TimeslotRepository timeslotRepository;
     @Inject
@@ -47,36 +44,62 @@ public class DemoDataGenerator {
     @Inject
     LessonRepository lessonRepository;
 
+    @ConfigProperty(name = "demo-data.lesson-count", defaultValue = "4")
+    int lessonCount;
+
     @Transactional
     public void generateDemoData(@Observes StartupEvent startupEvent) {
-        if (demoData == DemoData.NONE) {
+        if (lessonCount == 0) {
             return;
         }
+        // Few lessons: 1 timeslot per 2 lessons - Many lessons: 40 timeslots
+        int idealTimeslotCount = Math.min(DAY_OF_WEEK_LIST.size() * START_TIME_LIST.size(),
+                Math.max(2, lessonCount / 2));
+        int startTimeCount = Math.max(2, idealTimeslotCount / DAY_OF_WEEK_LIST.size());
+        int dayOfWeekCount = Math.max(1, (idealTimeslotCount + startTimeCount - 1) / startTimeCount);
+        int timeslotCount = dayOfWeekCount * startTimeCount;
+        // The minimum needed rooms + 10% (rounded down) + 1
+        int roomCount = lessonCount == 4 ? 2 : (((lessonCount + timeslotCount - 1) / timeslotCount) * 11 / 10) + 1;
 
-        //take an arranged written lessons
-        List<Lesson> lessons = lessonList.subList(0, demoData.size);
-        lessonRepository.persist(lessons);
-
-        //generate 3 room by default
-        List<Room> roomList = new ArrayList<>();
-        roomList.add(new Room("Room A"));
-        roomList.add(new Room("Room B" ));
-
-        //if we have enough rooms and timeslots then decrease timeslots otherwise add more rooms
-        if (2 * demoData.size / roomList.size() < timeslotList.size()) {
-            List<Timeslot> timeslots = timeslotList.subList(0, 2 * demoData.size / roomList.size());
-            timeslotRepository.persist(timeslots);
-        }
-        else {
-            for (int i = 67; roomList.size() < 2 * demoData.size / timeslotList.size(); i++) {
-                roomList.add(new Room("Room " + (char) i));
+        List<Timeslot> timeslotList = new ArrayList<>(timeslotCount);
+        for (DayOfWeek dayOfWeek : DAY_OF_WEEK_LIST.subList(0, dayOfWeekCount)) {
+            for (LocalTime startTime : START_TIME_LIST.subList(0, startTimeCount)) {
+                LocalTime endTime = startTime.plusHours(1);
+                timeslotList.add(new Timeslot(dayOfWeek, startTime, endTime));
             }
-            timeslotRepository.persist(timeslotList);
+        }
+        timeslotRepository.persist(timeslotList);
+
+        List<Room> roomList = new ArrayList<>(roomCount);
+        for (int i = 0; i < roomCount; i++) {
+            // Few rooms: A, B, C, ... - Many rooms: AA, AB, AC, ...
+            String name = "Room " + Character.toString(roomCount <= 26 ? ('A' + i) : ('A' + (i / 26)) + ('A' + (i % 26)));
+            roomList.add(new Room(name));
         }
         roomRepository.persist(roomList);
+
+        List<Lesson> lessonList = LESSON_LIST.subList(0, lessonCount);
+        lessonRepository.persist(lessonList);
     }
 
-    private static List<Lesson> lessonList = List.of(
+    private static final List<DayOfWeek> DAY_OF_WEEK_LIST = List.of(
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY);
+
+    private static final List<LocalTime> START_TIME_LIST = List.of(
+            LocalTime.of(8, 30),
+            LocalTime.of(9, 30),
+            LocalTime.of(10, 30),
+            LocalTime.of(13, 30),
+            LocalTime.of(14, 30),
+            LocalTime.of(11, 30),
+            LocalTime.of(15, 30),
+            LocalTime.of(16, 30));
+
+    private static List<Lesson> LESSON_LIST = List.of(
             new Lesson("Math", "A. Turing", "9th grade"),
             new Lesson("History", "I. Jones", "10th grade"),
             new Lesson("Chemistry", "M. Curie", "9th grade"),
@@ -177,42 +200,5 @@ public class DemoDataGenerator {
             new Lesson("Physical education", "C. Lewis", "12th grade"),
             new Lesson("Physical education", "C. Lewis", "12th grade"),
             new Lesson("Physical education", "C. Lewis", "12th grade"));
-
-    private static List<Timeslot> timeslotList = List.of(
-            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-            new Timeslot(DayOfWeek.MONDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-            new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-            new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-            new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)),
-            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)),
-            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)),
-            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)),
-            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)),
-            new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
-
-    public enum DemoData {
-        NONE(0), FOUR(4), SMALL(30), LARGE(100);
-
-        int size;
-
-        DemoData(int i) {
-            this.size = i;
-        }
-    }
 
 }
