@@ -23,7 +23,7 @@ public class TimeTable {
     private List<Timeslot> timeslotList;
     private List<Room> roomList;
     private List<Lesson> lessonList;
-    private int score;
+    private long score;
 
     // No-arg constructor required for OptaPlanner
     public TimeTable() {
@@ -35,11 +35,11 @@ public class TimeTable {
         this.lessonList = lessonList;
     }
 
-    public int getScore() {
+    public long getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(long score) {
         this.score = score;
     }
 

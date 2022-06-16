@@ -42,11 +42,11 @@ public class BruteForceService {
         }
 
         Choice[] bestChoices = null;
-        int bestScore = Integer.MIN_VALUE;
+        long bestScore = Long.MIN_VALUE;
         boolean finished = true;
         while (finished) {
             setupChoices(lessonList, timeslotList, roomList, choices);
-            int score = calculateScore(timeTable);
+            long score = calculateScore(timeTable);
             if (score > bestScore) {
                 bestScore = score;
                 bestChoices = new Choice[choices.length];
@@ -88,24 +88,28 @@ public class BruteForceService {
         }
     }
 
-    private int calculateScore(TimeTable timeTable) {
-        int hardScore = 0;
+    private long calculateScore(TimeTable timeTable) {
+        long hardScore = 0;
         for (Lesson lesson1 : timeTable.getLessonList()) {
             for (Lesson lesson2 : timeTable.getLessonList()) {
                 if (lesson1 == lesson2) {
                     break;
                 }
-                if (Objects.equals(lesson1.getRoom(), lesson2.getRoom()) && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                if (lesson1.getRoom() == lesson2.getRoom()
+                        && lesson1.getTimeslot() == lesson2.getTimeslot()) {
                     hardScore--;
                 }
-                if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher()) && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                if (lesson1.getTeacher() == lesson2.getTeacher()
+                        && lesson1.getTimeslot() == lesson2.getTimeslot()) {
                     hardScore--;
                 }
-                if (Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup()) && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                if (lesson1.getStudentGroup() == lesson2.getStudentGroup()
+                        && lesson1.getTimeslot() == lesson2.getTimeslot()) {
                     hardScore--;
                 }
             }
         }
         return hardScore;
     }
+
 }

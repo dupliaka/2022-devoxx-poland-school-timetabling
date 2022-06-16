@@ -57,7 +57,7 @@ public class TimeTableResource {
         long startMillis = System.currentTimeMillis();
         bruteForceService.solve(timeTable);
         long endMillis = System.currentTimeMillis();
-        Log.info("Greedy algorithm took " + (endMillis - startMillis) + " milliseconds.");
+        Log.info("Brute Force algorithm took " + (endMillis - startMillis) + " milliseconds.");
         save(timeTable);
     }
 
