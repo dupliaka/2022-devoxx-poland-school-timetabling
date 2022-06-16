@@ -35,9 +35,9 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                 teacherConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
                 // Soft constraints
-                teacherRoomStability(constraintFactory),
-                teacherTimeEfficiency(constraintFactory),
-                studentGroupSubjectVariety(constraintFactory)
+//                teacherRoomStability(constraintFactory),
+//                teacherTimeEfficiency(constraintFactory),
+//                studentGroupSubjectVariety(constraintFactory)
         };
     }
 
