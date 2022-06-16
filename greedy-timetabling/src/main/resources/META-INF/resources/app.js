@@ -268,8 +268,8 @@ function showError(title, xhr) {
 // TangoColorFactory
 // ****************************************************************************
 
-const SEQUENCE_1 = [0x8AE234, 0xFCE94F, 0x729FCF, 0xE9B96E, 0xAD7FA8];
-const SEQUENCE_2 = [0x73D216, 0xEDD400, 0x3465A4, 0xC17D11, 0x75507B];
+const SEQUENCE_1 = [0x8AE234, 0xAD7FA8, 0xFCE94F, 0x729FCF, 0xE9B96E];
+const SEQUENCE_2 = [0x73D216, 0x75507B, 0xEDD400, 0x3465A4, 0xC17D11];
 
 var colorMap = new Map;
 var nextColorCount = 0;
