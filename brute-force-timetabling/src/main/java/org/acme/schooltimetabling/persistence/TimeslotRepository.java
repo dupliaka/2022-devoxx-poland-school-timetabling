@@ -16,10 +16,10 @@
 
 package org.acme.schooltimetabling.persistence;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import org.acme.schooltimetabling.domain.Timeslot;
-
-import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class TimeslotRepository implements PanacheRepository<Timeslot> {

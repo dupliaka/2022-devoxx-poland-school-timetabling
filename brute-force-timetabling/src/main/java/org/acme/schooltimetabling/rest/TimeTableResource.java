@@ -16,6 +16,12 @@
 
 package org.acme.schooltimetabling.rest;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
 import io.quarkus.panache.common.Sort;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.TimeTable;
@@ -23,12 +29,6 @@ import org.acme.schooltimetabling.persistence.LessonRepository;
 import org.acme.schooltimetabling.persistence.RoomRepository;
 import org.acme.schooltimetabling.persistence.TimeslotRepository;
 import org.acme.schooltimetabling.solver.BruteForceService;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 
 @Path("timeTable")
 public class TimeTableResource {

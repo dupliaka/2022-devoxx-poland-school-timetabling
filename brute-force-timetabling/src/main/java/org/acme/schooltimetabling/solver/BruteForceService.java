@@ -1,10 +1,7 @@
 package org.acme.schooltimetabling.solver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
 import javax.enterprise.context.ApplicationScoped;
 
 import org.acme.schooltimetabling.domain.Lesson;

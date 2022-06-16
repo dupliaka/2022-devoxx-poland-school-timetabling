@@ -16,6 +16,15 @@
 
 package org.acme.schooltimetabling.bootstrap;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import io.quarkus.runtime.StartupEvent;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
@@ -24,15 +33,6 @@ import org.acme.schooltimetabling.persistence.LessonRepository;
 import org.acme.schooltimetabling.persistence.RoomRepository;
 import org.acme.schooltimetabling.persistence.TimeslotRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @ApplicationScoped
 public class DemoDataGenerator {
