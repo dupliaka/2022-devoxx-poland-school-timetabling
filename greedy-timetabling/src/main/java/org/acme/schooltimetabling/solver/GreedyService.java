@@ -10,6 +10,7 @@ import org.acme.schooltimetabling.domain.TimeTable;
 import org.acme.schooltimetabling.domain.Timeslot;
 @ApplicationScoped
 public class GreedyService {
+
     public TimeTable solve(TimeTable timeTable) {
         for (Lesson lesson : timeTable.getLessonList()) {
             int bestScore = Integer.MIN_VALUE;

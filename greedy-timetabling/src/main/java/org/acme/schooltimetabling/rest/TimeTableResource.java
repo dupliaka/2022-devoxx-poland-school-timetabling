@@ -60,7 +60,7 @@ public class TimeTableResource {
         long endMillis = System.currentTimeMillis();
         Log.info("Greedy algorithm took " + (endMillis - startMillis) + " milliseconds.");
         save(timeTable);
-        return timeTable; // TODO remove return to bring in sync with other examples
+        return timeTable;
     }
 
     @POST
