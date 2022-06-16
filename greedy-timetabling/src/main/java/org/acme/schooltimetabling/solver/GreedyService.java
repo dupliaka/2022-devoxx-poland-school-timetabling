@@ -40,19 +40,20 @@ public class GreedyService {
         int hardScore = 0;
         for (Lesson lesson1 : timeTable.getLessonList()) {
             for (Lesson lesson2 : timeTable.getLessonList()) {
-                if (lesson1 != lesson2) {
-                    if (Objects.equals(lesson1.getRoom(), lesson2.getRoom())
-                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
-                        hardScore--;
-                    }
-                    if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher())
-                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
-                        hardScore--;
-                    }
-                    if (Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup())
-                            && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
-                        hardScore--;
-                    }
+                if (lesson1 == lesson2) {
+                    break;
+                }
+                if (Objects.equals(lesson1.getRoom(), lesson2.getRoom())
+                        && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                    hardScore--;
+                }
+                if (Objects.equals(lesson1.getTeacher(), lesson2.getTeacher())
+                        && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                    hardScore--;
+                }
+                if (Objects.equals(lesson1.getStudentGroup(), lesson2.getStudentGroup())
+                        && Objects.equals(lesson1.getTimeslot(), lesson2.getTimeslot())) {
+                    hardScore--;
                 }
             }
         }
